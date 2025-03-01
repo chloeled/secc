@@ -31,7 +31,7 @@ public class RBACTest {
 
         // Connexion en tant qu'admin
         driver.findElement(By.id("username")).sendKeys("admin");
-        driver.findElement(By.id("password")).sendKeys("admin123");
+        driver.findElement(By.id("password")).sendKeys("0df8d6f7f798464cb026d1abe2a8bb8f");
         driver.findElement(By.id("login-btn")).click();
 
         // Vérifier que l'admin voit le panneau d'administration
@@ -48,8 +48,8 @@ public class RBACTest {
         driver.get("http://localhost:8080/Login");
 
         // Connexion en tant qu'utilisateur standard
-        driver.findElement(By.id("username")).sendKeys("user");
-        driver.findElement(By.id("password")).sendKeys("user123");
+        driver.findElement(By.id("username")).sendKeys("admin");
+        driver.findElement(By.id("password")).sendKeys("0df8d6f7f798464cb026d1abe2a8bb8f");
         driver.findElement(By.id("login-btn")).click();
 
         // Vérifie que l'utilisateur standard ne voit pas le panneau admin
