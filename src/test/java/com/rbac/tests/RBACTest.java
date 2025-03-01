@@ -8,6 +8,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import java.time.Duration;
+import java.util.List;
 
 public class RBACTest {
     private WebDriver driver;
@@ -31,6 +32,12 @@ public class RBACTest {
     public void testAdminAccess() {
         driver.get("http://localhost:8080/Login.html");
 
+        // Vérification du DOM (utile pour le débogage, peut être retiré en production)
+        System.out.println("Page source :\n" + driver.getPageSource());
+
+        // Vérification des erreurs JS dans la console
+        System.out.println("Logs du navigateur : " + driver.manage().logs().get("browser").getAll());
+
         // Connexion en tant qu'admin
         login("admin", "0df8d6f7f798464cb026d1abe2a8bb8f");
 
@@ -41,7 +48,7 @@ public class RBACTest {
 
     @Test
     public void testUserRestriction() {
-        driver.get("http://localhost:8080/Login.html");
+        driver.get("http://localhost:8080/job/ism/");
 
         // Connexion en tant qu'utilisateur standard
         login("user", "userpassword"); // Remplacer par un mot de passe utilisateur valide
@@ -51,16 +58,32 @@ public class RBACTest {
         Assert.assertFalse("Un utilisateur ne devrait pas voir le panneau admin !", isAdminPanelVisible);
     }
 
-    private void login(String username, String password) {
-        // Méthode pour se connecter avec un utilisateur et un mot de passe donnés
-        WebElement usernameField = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("username")));
-        usernameField.sendKeys(username);
+    private void login(String utilisateur, String motDePasse) {
+        // Gestion des iframes s'il y en a
+        switchToFirstIframeIfPresent();
 
-        WebElement passwordField = wait.until(ExpectedConditions.presenceOfElementLocated(By.id("password")));
-        passwordField.sendKeys(password);
+        // Remplir le champ utilisateur
+        WebElement utilisateurField = waitForElementVisible(By.id("utilisateur"));
+        utilisateurField.sendKeys(utilisateur);
 
+        // Remplir le champ mot de passe
+        WebElement motDePasseField = waitForElementVisible(By.id("mot-de-passe"));
+        motDePasseField.sendKeys(motDePasse);
+
+        // Cliquer sur le bouton de connexion
         WebElement loginButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("login-btn")));
         loginButton.click();
+
+        // Revenir au contexte principal après la connexion
+        driver.switchTo().defaultContent();
+    }
+
+    private void switchToFirstIframeIfPresent() {
+        List<WebElement> iframes = driver.findElements(By.tagName("iframe"));
+        if (!iframes.isEmpty()) {
+            driver.switchTo().frame(0); // Basculer vers la première iframe si nécessaire
+            System.out.println("Basculé dans la première iframe.");
+        }
     }
 
     private boolean isElementPresent(By by) {
